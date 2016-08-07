@@ -54,7 +54,6 @@ unknown_are_stopped=0
 
 action_default="reset"         # Default fence action
 ec2_tag_default="Name"	       # EC2 Tag containing the instance's uname
-nodename_default=""
 
 sleep_time="1"
 
@@ -62,7 +61,6 @@ ec2_tag=${tag}
 
 : ${ec2_tag:=${ec2_tag_default}}
 : ${port:=${port_default}}
-: ${nodename:=${nodename_default}}
 
 function usage()
 {
@@ -250,7 +248,7 @@ if [ -z "$1" -o "--" = "$1" ]; then
 	while read line; do
 		case $line in
 			option=*|action=*) action=`echo $line | sed s/.*=//`;;
-			port=*)        port=`echo $line | sed s/.*=//`;;
+			port=*|nodename=*)        port=`echo $line | sed s/.*=//`;;
 			profile=*)     ec2_profile=`echo $line | sed s/.*=//`;;
 			tag=*)         ec2_tag=`echo $line | sed s/.*=//`;;
 			quiet*)        quiet=1;;
@@ -264,7 +262,7 @@ fi
 while true ; do
 	case "$1" in
 		-o|--action|--option) action=$2;   shift; shift;;
-		-n|--port)            port=$2;     shift; shift;;
+		-n|--port|--nodename)            port=$2;     shift; shift;;
 		-p|--profile)         ec2_profile=$2; shift; shift;;
 		-t|--tag)	      ec2_tag=$2; shift; shift;;
 		-U|--unknown-are-stopped) unknown_are_stopped=1; shift;;
