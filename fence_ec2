@@ -199,7 +199,7 @@ function instance_off()
 	else
 		if [[ ! -z $(echo $port | awk -F"[.a-z]*" '{print$3}') ]]
 		then
-			DELAY=$(($(($(echo $port | awk -F"[.a-z]*" '{print$3}')-1))*20))
+			DELAY=$(($(($(echo $port | awk -F"[.a-z]*" '{print$3}')-1))*30))
 			ha_log.sh info "Waiting $DELAY seconds before attempting to shutdown"
 			sleep $DELAY
 		fi
