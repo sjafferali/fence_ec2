@@ -54,6 +54,7 @@ unknown_are_stopped=0
 
 action_default="reset"         # Default fence action
 ec2_tag_default="Name"	       # EC2 Tag containing the instance's uname
+nodename_default=""
 
 sleep_time="1"
 
@@ -61,6 +62,7 @@ ec2_tag=${tag}
 
 : ${ec2_tag:=${ec2_tag_default}}
 : ${port:=${port_default}}
+: ${nodename:=${nodename_default}}
 
 function usage()
 {
