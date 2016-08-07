@@ -397,7 +397,7 @@ case $action in
 			sleep $sleep_time
 		done
 		ha_log.sh info "Re-attaching public IP address ($ALLOCATION_ID) to $instance"
-		aws ec2 associate-address --instance-id $instance --allocation-id $ALLOCATION_ID --network-interface-id $ENI
+		aws ec2 associate-address --allocation-id $ALLOCATION_ID --network-interface-id $ENI &> /dev/null
 	;;
 	monitor)
 		# Is the device ok?
