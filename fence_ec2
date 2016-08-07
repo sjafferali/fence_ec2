@@ -216,7 +216,12 @@ function instance_status()
 			}'`
 		rc=$?
 	fi
-	ha_log.sh info "status check for $port ($instance) is $status"
+	if [[ -z $port ]]
+	then
+		ha_log.sh info "status check for $instance is $status"
+	else
+		ha_log.sh info "status check for $instance ($port) is $status"
+	fi
 	echo $status
 	return $rc
 }
