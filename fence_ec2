@@ -59,22 +59,22 @@ sleep_time="1"
 
 ec2_tag=${tag}
 
-: ${ec2_tag=${ec2_tag_default}}
-: ${port=${port_default}}
+: ${ec2_tag:=${ec2_tag_default}}
+: ${port:=${port_default}}
 
 function usage()
 {
 cat <<EOF
 `basename $0` - A fencing agent for Amazon EC2 instances
- 
+
 $description
- 
+
 Usage: `basename $0` -o|--action [-n|--port] [options]
 Options:
  -h, --help 		This text
  -V, --version		Version information
  -q, --quiet 		Reduced output mode
- 
+
 Commands:
  -o, --action		Action to perform: on|off|reboot|status|monitor
  -n, --port 		The name of a machine/instance to control/check
@@ -209,7 +209,7 @@ function instance_status()
 	if [ "$unknown_are_stopped" = 1 -a $instance_not_found ]; then
 		ha_log.sh info "$instance stopped (unknown)"
 	else
-		status=`aws ec2 describe-instances $options --instance-ids $instance | awk '{ 
+		status=`aws ec2 describe-instances $options --instance-ids $instance | awk '{
 			if (/^STATE\t/) { printf "%s", $3 }
 			}'`
 		rc=$?
@@ -223,7 +223,7 @@ function instance_status()
 TEMP=`getopt -o qVho:e:p:n:t:U --long version,help,action:,port:,option:,profile:,tag:,quiet,unknown-are-stopped \
      -n 'fence_ec2' -- "$@"`
 
-if [ $? != 0 ];then 
+if [ $? != 0 ];then
     usage
     exit 1
 fi
@@ -231,10 +231,11 @@ fi
 # Note the quotes around `$TEMP': they are essential!
 eval set -- "$TEMP"
 
-if [ -z $1 ]; then
+#  Check for absence of command line args.  If so, the previous call will have set $1 to "--"
+if [ -z "$1" -o "--" = "$1" ]; then
 	# If there are no command line args, look for options from stdin
 	while read line; do
-		case $line in 
+		case $line in
 			option=*|action=*) action=`echo $line | sed s/.*=//`;;
 			port=*)        port=`echo $line | sed s/.*=//`;;
 			profile=*)     ec2_profile=`echo $line | sed s/.*=//`;;
@@ -256,7 +257,7 @@ while true ; do
 		-U|--unknown-are-stopped) unknown_are_stopped=1; shift;;
 		-q|--quiet) quiet=1; shift;;
 		-V|--version) echo "1.0.0"; exit 0;;
-		--help|-h) 
+		--help|-h)
 			usage;
 			exit 0;;
 		--) shift ; break ;;
@@ -274,7 +275,7 @@ fi
 
 action=`echo $action | tr 'A-Z' 'a-z'`
 
-case $action in 
+case $action in
 	metadata)
 		metadata
 	;;
@@ -307,7 +308,7 @@ case $action in
 esac
 
 # get my instance id
-myinstance=`curl http://169.254.169.254/latest/meta-data/instance-id`
+myinstance=`curl -s http://169.254.169.254/latest/meta-data/instance-id`
 
 # check my status.
 # When the EC2 instance be stopped by the "aws ec2 stop-instances" , the stop processing of the OS is executed.
@@ -330,7 +331,7 @@ if [ ! -z "$port" ]; then
 	instance=`instance_for_port $port $options`
 fi
 
-case $action in 
+case $action in
 	reboot|reset)
 		status=`instance_status $instance`
 		if [ "$status" != "stopped" ]; then
@@ -381,7 +382,7 @@ case $action in
 	;;
 	gethosts|hostlist|list)
 		# List of names we know about
-		a=`aws ec2 describe-instances $options | awk -v tag_pat="^TAGS\t$ec2_tag\t" -F '\t' '{ 
+		a=`aws ec2 describe-instances $options | awk -v tag_pat="^TAGS\t$ec2_tag\t" -F '\t' '{
 			if (/^INSTANCES/) { printf "%s\n", $8 }
 			else if ( $1"\t"$2"\t" ~ tag_pat ) { printf "%s\n", $3 }
 			}' | sort -u`
@@ -402,4 +403,3 @@ elif [ $status -eq 0 ]; then
 else
 	ha_log.sh err "Operation $action failed: $status"
 fi
-exit $status
