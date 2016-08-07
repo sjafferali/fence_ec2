@@ -9,4 +9,6 @@ if [[ -z $(pcs stonith | grep ec2) ]]
 then
   pcs stonith create ec2-fencing fence_ec2 tag="Name" action="off" unknown-are-stopped="true" op monitor interval="600s" timeout="300s" op start start-delay="10s" interval="0"
   pcs property set stonith-enabled=true
-fi  
+  pcs property set stonith-action=poweroff
+  pcs property set stonith-timeout=300s
+fi
