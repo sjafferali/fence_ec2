@@ -195,8 +195,12 @@ function instance_off()
 		: nothing to do
 		ha_log.sh info "Assuming unknown instance $instance is already off"
 	else
-		DELAY=$(($(($(echo $port | awk -F"[.a-z]*" '{print$3}')-1))*10))
-		ha_log.sh info "Waiting $DELAY seconds before attempting to shutdown"
+		if [[ ! -z $(echo $port | awk -F"[.a-z]*" '{print$3}') ]]
+		then
+			DELAY=$(($(($(echo $port | awk -F"[.a-z]*" '{print$3}')-1))*10))
+			ha_log.sh info "Waiting $DELAY seconds before attempting to shutdown"
+			sleep $DELAY
+		fi
 		aws ec2 stop-instances $options --instance-ids $instance --force
 	fi
 }
