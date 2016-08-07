@@ -199,10 +199,16 @@ function instance_off()
 	else
 		if [[ ! -z $(echo $port | awk -F"[.a-z]*" '{print$3}') ]]
 		then
-			DELAY=$(($(($(echo $port | awk -F"[.a-z]*" '{print$3}')-1))*30))
+			DELAY=$(($(($(echo $port | awk -F"[.a-z]*" '{print$3}')-1))*10))
 			ha_log.sh info "Waiting $DELAY seconds before attempting to shutdown"
 			sleep $DELAY
 		fi
+		aws ec2 describe-addresses --filters "Name=instance-id,Values=$instance" | grep AssociationId | awk -F'"' '{print$4}' | while read line
+		do
+			ha_log.sh info "Removing public IP address ($line) from $instance so it cannot fence me"
+			aws ec2 disassociate-address --association-id $line
+		done
+		ha_log.sh info "Powering off $instance"
 		aws ec2 stop-instances $options --instance-ids $instance --force
 	fi
 }
