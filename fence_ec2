@@ -205,8 +205,8 @@ function instance_off()
 		fi
 		
 		ENI=$(aws ec2 describe-network-interfaces --filters "Name=attachment.instance-id,Values=$instance" "Name=attachment.device-index,Values=0" | awk -F'"' '/NetworkInterfaceId/ {print$4}')
-		ASSOCIATION_ID=$(aws ec2 describe-network-interfaces --filters "Name=attachment.instance-id,Values=i-0905c221958c34171" "Name=attachment.device-index,Values=0" | awk -F'"' '/AssociationId/ {print$4}' | head -1)
-		ALLOCATION_ID=$(aws ec2 describe-network-interfaces --filters "Name=attachment.instance-id,Values=i-0905c221958c34171" "Name=attachment.device-index,Values=0" | awk -F'"' '/AllocationId/ {print$4}' | head -1)
+		ASSOCIATION_ID=$(aws ec2 describe-network-interfaces --filters "Name=attachment.instance-id,Values=$instance" "Name=attachment.device-index,Values=0" | awk -F'"' '/AssociationId/ {print$4}' | head -1)
+		ALLOCATION_ID=$(aws ec2 describe-network-interfaces --filters "Name=attachment.instance-id,Values=$instance" "Name=attachment.device-index,Values=0" | awk -F'"' '/AllocationId/ {print$4}' | head -1)
 		ha_log.sh info "Removing public IP address ($ASSOCIATION_ID) from $instance so it cannot fence me"
 		aws ec2 disassociate-address --association-id $ASSOCIATION_ID
 
