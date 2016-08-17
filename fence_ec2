@@ -170,7 +170,7 @@ function instance_for_port()
 	local instance=""
 
 	# Look for port name -n in the INSTANCE data
-	instance=`aws ec2 describe-instances $options | grep "^INSTANCES[[:space:]].*[[:space:]]$port[[:space:]]" | awk '{print $8}'`
+	instance=`aws ec2 describe-instances --filters "Name=instance-state-name,Values=pending,running,shutting-down,stopping,stopped" $options | grep "^INSTANCES[[:space:]].*[[:space:]]$port[[:space:]]" | awk '{print $8}'`
 	if [ -z $instance ]; then
 		# Look for port name -n in the Name TAG
 		instance=`aws ec2 describe-tags $options | grep "^TAGS[[:space:]]$ec2_tag[[:space:]].*[[:space:]]instance[[:space:]]$port$" | awk '{print $3}'`
