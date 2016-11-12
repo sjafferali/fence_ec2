@@ -391,13 +391,13 @@ case $action in
 		while true;
 		do
 			status=`instance_status $instance`
-			if [ "$status" = "stopped" ]; then
+			if [[ "$status" =~ terminated|stopped ]]; then
 				break
 			fi
 			sleep $sleep_time
 		done
-		ha_log.sh info "Re-attaching public IP address ($ALLOCATION_ID) to $instance"
-		aws ec2 associate-address --allocation-id $ALLOCATION_ID --network-interface-id $ENI &> /dev/null
+		#ha_log.sh info "Re-attaching public IP address ($ALLOCATION_ID) to $instance"
+		#aws ec2 associate-address --allocation-id $ALLOCATION_ID --network-interface-id $ENI &> /dev/null
 	;;
 	monitor)
 		# Is the device ok?
